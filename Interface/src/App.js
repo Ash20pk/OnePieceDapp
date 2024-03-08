@@ -31,11 +31,26 @@ function App() {
   useEffect(() => {
     if (connected) {
       playBgSound();
-      isMinted();
+      checkMinted();
     } else {
       stopBgSound();
     }
   }, [connected]);
+
+  const checkMinted = async () => {
+    setLoading(true);
+    const bool = await nftcontract.methods.hasMinted(account).call();
+    if(bool) {
+      setMinted(true);
+      fetchURI();
+      setShowPersonalityForm(false);
+    }
+    else {
+      setMinted(false);
+      setShowPersonalityForm(true); 
+    }
+    setLoading(false);
+  };
 
   const isMinted = async () => {
     setLoading(true);

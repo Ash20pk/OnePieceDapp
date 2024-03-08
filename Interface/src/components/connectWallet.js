@@ -49,6 +49,7 @@ export function ConnectWallet({ children }) {
   const disconnectWallet = () => {
     setAccount(null);
     setConnected(false);
+    setNftcontract(null);
   };
 
   return (
