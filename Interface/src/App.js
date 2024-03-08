@@ -16,6 +16,7 @@ function App() {
   const [Minted, setMinted] = useState(false);
   const [tokenURI, setTokenURI] = useState('');
   const [checkMintedSuccess, setCheckMintSuccess] = useState(0);
+  const [character, setCharacter] = useState(``);
 
 
   //Initialize audio
@@ -79,6 +80,7 @@ function App() {
     const metadataIpfsLink = await nftcontract.methods.tokenURI(tokenID).call();
     const response = await fetch(metadataIpfsLink);
     const metadata = await response.json();
+    getCharacter(metadata);
     console.log(metadata.image);
     setTokenURI(metadata.image);
     setLoading(false);
@@ -94,6 +96,10 @@ function App() {
       connectWallet();
     }
   };
+
+  const getCharacter = (metadata) => {
+    setCharacter(metadata.name);
+  }
 
   const handleDisconnect = () => {
     disconnectWallet();
@@ -161,9 +167,13 @@ function App() {
             ) : (
               <>
                {Minted ? (
+                <div className="character-container">
                 <div className="character-image-container">
                   <img className="character-image" src={tokenURI} alt="NFT" />
                 </div>
+                <h3 className="character-name">{character}</h3>
+              </div>
+                
               ) : showPersonalityForm ? (
                 <PersonalityForm onSubmit={handleAnswerSubmit}  showForm={setShowPersonalityForm} 
                 />

@@ -108,19 +108,39 @@ body {
 }
 
 .character-image-container {
-  width: 20rem; /* Adjust the width of the square container */
-  height: 20rem; /* Adjust the height of the square container */
-  overflow: hidden; /* Hide overflowing content */
-  position: relative; /* Ensure absolute positioning works relative to this container */
-  border: 2px solid;
-  border-color: #050505;
-
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 5px solid #d32f1f;
+  margin-bottom: 20px;
 }
 
 .character-image {
-  width: 100%; /* Make the image fill the container horizontally */
-  height: 100%; /* Make the image fill the container vertically */
-  object-fit: cover; /* Maintain aspect ratio while covering the container */
+    height: 100%;
+    object-fit: contain;
+    width: 100%;
+}
+
+.character-name {
+  font-family: 'Pangolin', cursive;
+  font-size: 32px;
+  color: #d32f1f;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+.character-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4e9d8;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 50px;
 }
 
 
