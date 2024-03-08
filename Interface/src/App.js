@@ -6,6 +6,13 @@ import { useWeb3 } from "./components/connectWallet";
 import loadingAnimation from "./loaders/loading.gif";
 import bgAudio from "./sounds/bg_sound.mp3";
 import logo from "./assets/onepiece_logo.png";
+import luffyAudio from "./sounds/luffy.mp3";
+import sanjiAudio from "./sounds/sanji.mp3";
+import zoroAudio from "./sounds/zoro.mp3";
+import usoppAudio from "./sounds/usopp.mp3";
+import brookAudio from "./sounds/brook.mp3";
+
+
 
 function App() {
   const { nftcontract, account, connectWallet, disconnectWallet, connected } = useWeb3();
@@ -21,6 +28,11 @@ function App() {
 
   //Initialize audio
   const [playBgSound, { stop: stopBgSound }] = useSound(bgAudio, { loop: true });
+  const [playLuffySound, { stop: stopLuffySound }] = useSound(luffyAudio, { loop: false });
+  const [playSanjiSound, { stop: stopSanjiSound }] = useSound(sanjiAudio, { loop: false });
+  const [playZoroSound, { stop: stopZoroSound }] = useSound(zoroAudio, { loop: false });
+  const [playUsoppSound, { stop: stopUsoppSound }] = useSound(usoppAudio, { loop: false });
+  const [playBrookSound, { stop: stopBrookSound }] = useSound(brookAudio, { loop: false });
 
   // Simulate loading process
   useEffect(() => {
@@ -99,7 +111,23 @@ function App() {
 
   const getCharacter = (metadata) => {
     setCharacter(metadata.name);
+    if (metadata.name === "Monkey D. Luffy") {
+      playLuffySound();
+      }
+    else if (metadata.name === "Roronoa Zoro") {
+      playZoroSound();
+    }
+    else if (metadata.name === "Sanji") {
+      playSanjiSound();
+    }
+    else if (metadata.name === "Brook") {
+      playBrookSound();
+    }
+    else if (metadata.name === "Usopp") {
+      playUsoppSound();
+    }
   }
+
 
   const handleDisconnect = () => {
     disconnectWallet();
