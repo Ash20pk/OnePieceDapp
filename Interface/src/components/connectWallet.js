@@ -21,7 +21,7 @@ export function ConnectWallet({ children }) {
     }
   }, []);
 
-  const nftContractAddress = "0xcB111FDedE11049744c0edebde2f4C012f76CA5C";
+  const nftContractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 
 
   const connectWallet = async () => {
