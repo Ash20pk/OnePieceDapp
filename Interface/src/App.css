@@ -1,5 +1,17 @@
+@font-face {
+  font-family: 'OnePiece'; /*a name to be used later*/
+  src: url(../public/font.ttf); /*URL to font*/
+}
+
 body {
-  background-image : url(./assets/op1.jpeg);
+  background-image: url(./assets/background_image1.jpeg) ;
+  background-position: center;
+  background-size: stretch;
+  background-repeat: no-repeat;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Arial', sans-serif; /* Add font family for consistency */
+  color: #fff; /* Set default text color to white */
 }
 
 .App {
@@ -7,114 +19,108 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 50px;
+  padding-top: 50px;
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
 }
 
-h1 {
-  font-family: 'HPfont', sans-serif;
-  font-size: 85px;
-  margin-bottom: 30px;
-  text-align: center;
+.top-right-buttons {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
 }
 
-.connect-button {
-  background-color: #4CAF50; /* Green */
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 10px;
-  float: right; /* Aligns the button to the right side */
-}
-
-
-
-button {
-  font-family: 'Hpfont', sans-serif;
+.top-right-buttons button {
+  margin-left: 10px;
   padding: 10px 20px;
-  font-size: 35px;
-  background-color: #1c1c1c;
-  color: #fff;
   border: none;
   border-radius: 4px;
+  background-color: #f25a42;
+  color: #fff;
   cursor: pointer;
-  margin-top: 20px;
-}
-
-button:hover {
-  font-family: 'Hpfont', sans-serif;
-  background-color: #333;
-}
-
-p {
-  font-family: 'Potterfont', sans-serif;
-  font-size: 60px;
-  display: block;
-  text-align: center;
-  margin-bottom: 15px;
-  margin-top: 15px;
-
-}
-.metamask-button {
-  position: absolute;
-  top: 10px;
-  right: 50px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  background-color: #1a1a1a;  /* Dark background to match the theme */
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.user-info span {
-  top: 10px;
-  right: 50px;
-  color: #f4e9d8;  /* A parchment-like text color to contrast the dark background */
-  margin-right: 15px;
-  font-size: 18px;
-}
-
-.form {
-  justify-content: center;
-  align-items: baseline;
-}
-
-.input-box {
-  font-family: 'Cinzel', serif;
-  font-size: 20px;
-  border: none;
-  background-color: #f4e9d8;
-  padding: 15px 20px;
-  margin-bottom: 20px;
   outline: none;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-.input-box:focus {
-  border-bottom: 2px solid #000000;
+.top-right-buttons button:hover {
+  background-color: #d32f1f;
 }
 
-.input-box::placeholder {
-  color: #7f7f7f;
-  opacity: 0.8;
+.start-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  justify-content: center;
 }
 
-.form-button {
-  margin-left: 5px;
-  align-self: flex-end; /* To align it with the bottom border of the input */
-  font-size: 20px;  /* match the font-size with input-box */
-  padding: 15px 20px;  /* match the padding with input-box */
+.logo {
+  width: 20%; /* Adjust the width of the logo as needed */
 }
 
-.Hogwarts-logo {
-  width: 10%; /* adjust to your preferred size */
-  height: auto; /* maintains aspect ratio */
-  display: block; /* centers the image horizontally */
-  margin: 0 auto; /* centers the image horizontally */
+.start-text {
+  color: #050505;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-family: 'OnePiece';
 }
+
+.start-button, .submit-button {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f25a42;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
+  font-size: 20px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.start-button:hover, .submit-button:hover {
+  background-color: #d32f1f;
+}
+
+.reveal-button {
+  background-color: #f25a42;
+  border: none;
+  border-radius: 5px;
+  color: #ffffff;
+  cursor: pointer;
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 30px auto 0;
+  padding: 15px 30px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+}
+
+.reveal-button:hover {
+  background-color: #d32f1f;
+}
+
+.character-image-container {
+  width: 20rem; /* Adjust the width of the square container */
+  height: 20rem; /* Adjust the height of the square container */
+  overflow: hidden; /* Hide overflowing content */
+  position: relative; /* Ensure absolute positioning works relative to this container */
+  border: 2px solid;
+  border-color: #050505;
+
+}
+
+.character-image {
+  width: 100%; /* Make the image fill the container horizontally */
+  height: 100%; /* Make the image fill the container vertically */
+  object-fit: cover; /* Maintain aspect ratio while covering the container */
+}
+
+
