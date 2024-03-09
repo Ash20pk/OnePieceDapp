@@ -69,7 +69,7 @@ function App() {
     setLoading(false);
   };
 
-  const checkMintedEvent = async (minter) => {
+  const checkMintedEvent = async () => {
     const query = gql`
       query GetNftMintedEvent($minter: Bytes!) {
         nftMinteds(where: { minter: $minter }) {
@@ -84,7 +84,7 @@ function App() {
     `;
   
     const variables = {
-      minter: minter,
+      minter: account,
     };
   
     const checkEvent = async () => {
@@ -184,7 +184,7 @@ function App() {
     })
     .on("receipt", function (receipt) {
         console.log("Transaction successful:", receipt.transactionHash);
-        checkMintedEvent(account);
+        checkMintedEvent();
     })
     .on("error", (error) => {
         console.error("Error requesting NFT:", error);
