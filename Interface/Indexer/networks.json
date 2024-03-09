@@ -1,8 +1,8 @@
 {
-  "mumbai": {
+  "arbitrum-sepolia": {
     "OnePieceMint": {
-      "address": "0xeDdDF52C2e28dDe4223CcEA96f9156F19229fADe",
-      "startBlock": 46813736
+      "address": "0x57bc9dcb97a3c86a01dE9A2876F6EfE7DB6dab25",
+      "startBlock": 21422628
     }
   }
 }

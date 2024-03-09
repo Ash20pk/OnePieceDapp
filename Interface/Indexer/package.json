@@ -1,13 +1,13 @@
 {
-  "name": "one-piece-dapp",
+  "name": "one-piece-game",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ one-piece-dapp",
-    "create-local": "graph create --node http://localhost:8020/ one-piece-dapp",
-    "remove-local": "graph remove --node http://localhost:8020/ one-piece-dapp",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 one-piece-dapp",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ one-piece-game",
+    "create-local": "graph create --node http://localhost:8020/ one-piece-game",
+    "remove-local": "graph remove --node http://localhost:8020/ one-piece-game",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 one-piece-game",
     "test": "graph test"
   },
   "dependencies": {

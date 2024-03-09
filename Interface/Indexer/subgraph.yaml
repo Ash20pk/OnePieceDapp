@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: OnePieceMint
-    network: mumbai
+    network: arbitrum-sepolia
     source:
-      address: "0xeDdDF52C2e28dDe4223CcEA96f9156F19229fADe"
+      address: "0x57bc9dcb97a3c86a01dE9A2876F6EfE7DB6dab25"
       abi: OnePieceMint
-      startBlock: 46813736
+      startBlock: 21422628
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

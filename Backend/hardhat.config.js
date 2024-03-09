@@ -19,8 +19,8 @@ module.exports = {
       url: "https://eth-sepolia.public.blastapi.io",
       accounts: privateKey(),
     },
-    mantle_goerli: {
-      url: "https://rpc.testnet.mantle.xyz",
+    arbitrum_sepolia: {
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
       accounts: privateKey(),
     }
   },
@@ -33,6 +33,6 @@ module.exports = {
       },
     },
   },  etherscan: {
-    apiKey: "S1VXKDQCP4P2VXAK9Q8B46K71TFP9WF692",
+    apiKey: "GV9WGIXNS52YW99IF8DW8J1ENGCQCJNJTK",
   },
 };

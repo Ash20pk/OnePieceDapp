@@ -14,3 +14,5 @@ build_webpack
 npm-debug.log
 
 artifact
+
+arguments.js
