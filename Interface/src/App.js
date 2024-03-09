@@ -69,7 +69,7 @@ function App() {
     setLoading(false);
   };
 
-  const checkMintedEvent = async () => {
+  const checkMintedEvent = async (minter) => {
     const query = gql`
       query GetNftMintedEvent($minter: Bytes!) {
         nftMinteds(where: { minter: $minter }) {
@@ -84,19 +84,29 @@ function App() {
     `;
   
     const variables = {
-      minter: account,
+      minter: minter,
     };
+  
+    let timedOut = false;
+  
+    // Timeout after 30 seconds
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      console.log('Timeout occurred after 30 seconds.');
+    }, 30000);
   
     const checkEvent = async () => {
       try {
         const result = await client.query({ query, variables });
-        const nftMinted = result.data.nftMinteds[0]; 
-  
+        const nftMinted = result.data.nftMinteds[0];
         if (nftMinted) {
           console.log('NFT minted successfully');
+          clearTimeout(timeout); // Clear the timeout if the minted event is found
           checkMinted();
         } else {
-          setTimeout(checkEvent, 2000); // Check again after 2 seconds
+          if (!timedOut) {
+            setTimeout(checkEvent, 3000); // Check again after 3 seconds
+          }
         }
       } catch (error) {
         console.error("Error occurred while querying the subgraph:", error);
@@ -105,8 +115,10 @@ function App() {
       }
     };
   
-    checkEvent();
+    // Start after a 3-second delay
+    setTimeout(checkEvent, 3000);
   };
+  
 
   const fetchURI = async () => {
     setLoading(true);
@@ -184,7 +196,7 @@ function App() {
     })
     .on("receipt", function (receipt) {
         console.log("Transaction successful:", receipt.transactionHash);
-        checkMintedEvent();
+        checkMintedEvent(account);
     })
     .on("error", (error) => {
         console.error("Error requesting NFT:", error);
