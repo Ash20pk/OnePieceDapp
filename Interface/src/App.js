@@ -15,7 +15,7 @@ import brookAudio from "./sounds/brook.mp3";
 
 
 function App() {
-  const { nftcontract, account, connectWallet, disconnectWallet, connected } = useWeb3();
+  const { web3, nftcontract, account, connectWallet, disconnectWallet, connected } = useWeb3();
   const [showPersonalityForm, setShowPersonalityForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState([]);
@@ -65,26 +65,26 @@ function App() {
     setLoading(false);
   };
 
-  const isMinted = async () => {
-    setLoading(true);
-    setTimeout(async() => {
-    const bool = await nftcontract.methods.hasMinted(account).call();
-    if(bool) {
-      setMinted(true);
-      fetchURI();
-      setShowPersonalityForm(false);
-    }
-    else if(checkMintedSuccess < 3){
-      setCheckMintSuccess(prev=>prev+1);
-      isMinted();
-    }
-    else {
-      setMinted(false);
-      setShowPersonalityForm(true); 
-    }
-  }, 800);
-    setLoading(false);
-  };
+  // const isMinted = async () => {
+  //   setLoading(true);
+  //   setTimeout(async() => {
+  //   const bool = await nftcontract.methods.hasMinted(account).call();
+  //   if(bool) {
+  //     setMinted(true);
+  //     fetchURI();
+  //     setShowPersonalityForm(false);
+  //   }
+  //   else if(checkMintedSuccess < 3){
+  //     setCheckMintSuccess(prev=>prev+1);
+  //     isMinted();
+  //   }
+  //   else {
+  //     setMinted(false);
+  //     setShowPersonalityForm(true); 
+  //   }
+  // }, 800);
+  //   setLoading(false);
+  // };
 
   const fetchURI = async () => {
     setLoading(true);
@@ -103,7 +103,7 @@ function App() {
     setAnswers([]); // Reset the answers array
     console.log('Start Array', JSON.stringify(answers));
     if (connected) {
-      setShowPersonalityForm(true);
+      checkMinted();
     } else {
       connectWallet();
     }
@@ -150,25 +150,57 @@ function App() {
     });
   };
 
+
   const handleFormSubmit = async () => {
+    setLoading(true); // Set loading to true before sending the transaction
 
-    await nftcontract.methods
-    .requestNFT(answers)
-    .send({from: account})
-    .on("transactionHash", function (hash) {
+    try {
+      await nftcontract.methods
+      .requestNFT(answers)
+      .send({ from: account })
+      .on("transactionHash", function (hash) {
         console.log("Transaction sent. Transaction hash:", hash);
-        setLoading(true); // Set loading to true before sending the transaction
     })
-    .on("receipt", function (receipt) {
+      .on("receipt", function (receipt) {
         console.log("Transaction successful:", receipt.transactionHash);
-        isMinted();
     })
-    .on("error", (error) => {
-        console.error("Error requesting NFT:", error);
-        setLoading(false); // Set loading back to false if there's an error during the transaction
-    });
+      // Listen for the NftRequested event
+      nftcontract.once('NftRequested', () => {
+        console.log('Randomness requested from Chainlink VRF');
+      });
 
-    setShowPersonalityForm(false);
+      // Set a timeout for waiting for the NftMinted event
+      const timeout = 60000; // 60 seconds
+      let timeoutId;
+
+       // Subscribe to the NftMinted event
+      const subscription = web3.eth.subscribe('logs', {
+        address: nftcontract.options.address,
+        topics: [web3.utils.sha3('NftMinted(address,uint256)')]
+      }, (error, result) => {
+        if (error) {
+          console.error('Error occurred while subscribing to NftMinted event:', error);
+          setLoading(false);
+          clearTimeout(timeoutId); // Clear the timeout
+          return;
+        }
+
+        console.log('NFT minted successfully');
+        checkMinted();
+        subscription.unsubscribe(); // Unsubscribe from the event
+        clearTimeout(timeoutId); // Clear the timeout
+      });
+
+      // Set a timeout to wait for the NftMinted event
+      timeoutId = setTimeout(() => {
+        console.warn('Timeout reached while waiting for NftMinted event');
+        setLoading(false);
+        subscription.unsubscribe(); // Unsubscribe from the event
+      }, timeout);
+    } catch (error) {
+      console.error("Error occurred:", error);
+      setLoading(false);
+    }   
   };
 
   return (
