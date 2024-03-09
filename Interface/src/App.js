@@ -11,8 +11,12 @@ import sanjiAudio from "./sounds/sanji.mp3";
 import zoroAudio from "./sounds/zoro.mp3";
 import usoppAudio from "./sounds/usopp.mp3";
 import brookAudio from "./sounds/brook.mp3";
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
-
+const client = new ApolloClient({
+  uri: process.env.REACT_APP_SUBGRAPH_URL,
+  cache: new InMemoryCache(),
+});
 
 function App() {
   const { web3, nftcontract, account, connectWallet, disconnectWallet, connected } = useWeb3();
@@ -27,7 +31,7 @@ function App() {
 
 
   //Initialize audio
-  const [playBgSound, { stop: stopBgSound }] = useSound(bgAudio, { loop: true });
+  const [playBgSound, { stop: stopBgSound }] = useSound(bgAudio, { loop: true, volume: 0.2 });
   const [playLuffySound, { stop: stopLuffySound }] = useSound(luffyAudio, { loop: false });
   const [playSanjiSound, { stop: stopSanjiSound }] = useSound(sanjiAudio, { loop: false });
   const [playZoroSound, { stop: stopZoroSound }] = useSound(zoroAudio, { loop: false });
@@ -65,26 +69,44 @@ function App() {
     setLoading(false);
   };
 
-  // const isMinted = async () => {
-  //   setLoading(true);
-  //   setTimeout(async() => {
-  //   const bool = await nftcontract.methods.hasMinted(account).call();
-  //   if(bool) {
-  //     setMinted(true);
-  //     fetchURI();
-  //     setShowPersonalityForm(false);
-  //   }
-  //   else if(checkMintedSuccess < 3){
-  //     setCheckMintSuccess(prev=>prev+1);
-  //     isMinted();
-  //   }
-  //   else {
-  //     setMinted(false);
-  //     setShowPersonalityForm(true); 
-  //   }
-  // }, 800);
-  //   setLoading(false);
-  // };
+  const checkMintedEvent = async (minter) => {
+    const query = gql`
+      query GetNftMintedEvent($minter: Bytes!) {
+        nftMinteds(where: { minter: $minter }) {
+          id
+          characterId
+          minter
+          blockNumber
+          blockTimestamp
+          transactionHash
+        }
+      }
+    `;
+  
+    const variables = {
+      minter: minter,
+    };
+  
+    const checkEvent = async () => {
+      try {
+        const result = await client.query({ query, variables });
+        const nftMinted = result.data.nftMinteds[0]; 
+  
+        if (nftMinted) {
+          console.log('NFT minted successfully');
+          checkMinted();
+        } else {
+          setTimeout(checkEvent, 2000); // Check again after 2 seconds
+        }
+      } catch (error) {
+        console.error("Error occurred while querying the subgraph:", error);
+        setLoading(false);
+        // Handle the error case, e.g., show an error message to the user
+      }
+    };
+  
+    checkEvent();
+  };
 
   const fetchURI = async () => {
     setLoading(true);
@@ -152,56 +174,26 @@ function App() {
 
 
   const handleFormSubmit = async () => {
-    setLoading(true); // Set loading to true before sending the transaction
 
-    try {
-      await nftcontract.methods
-      .requestNFT(answers)
-      .send({ from: account })
-      .on("transactionHash", function (hash) {
+    await nftcontract.methods
+    .requestNFT(answers)
+    .send({from: account})
+    .on("transactionHash", function (hash) {
         console.log("Transaction sent. Transaction hash:", hash);
+        setLoading(true); // Set loading to true before sending the transaction
     })
-      .on("receipt", function (receipt) {
+    .on("receipt", function (receipt) {
         console.log("Transaction successful:", receipt.transactionHash);
+        checkMintedEvent(account);
     })
-      // Listen for the NftRequested event
-      nftcontract.once('NftRequested', () => {
-        console.log('Randomness requested from Chainlink VRF');
-      });
+    .on("error", (error) => {
+        console.error("Error requesting NFT:", error);
+        setLoading(false); // Set loading back to false if there's an error during the transaction
+    });
 
-      // Set a timeout for waiting for the NftMinted event
-      const timeout = 60000; // 60 seconds
-      let timeoutId;
-
-       // Subscribe to the NftMinted event
-      const subscription = web3.eth.subscribe('logs', {
-        address: nftcontract.options.address,
-        topics: [web3.utils.sha3('NftMinted(address,uint256)')]
-      }, (error, result) => {
-        if (error) {
-          console.error('Error occurred while subscribing to NftMinted event:', error);
-          setLoading(false);
-          clearTimeout(timeoutId); // Clear the timeout
-          return;
-        }
-
-        console.log('NFT minted successfully');
-        checkMinted();
-        subscription.unsubscribe(); // Unsubscribe from the event
-        clearTimeout(timeoutId); // Clear the timeout
-      });
-
-      // Set a timeout to wait for the NftMinted event
-      timeoutId = setTimeout(() => {
-        console.warn('Timeout reached while waiting for NftMinted event');
-        setLoading(false);
-        subscription.unsubscribe(); // Unsubscribe from the event
-      }, timeout);
-    } catch (error) {
-      console.error("Error occurred:", error);
-      setLoading(false);
-    }   
+    setShowPersonalityForm(false);
   };
+
 
   return (
     <div className="App">
