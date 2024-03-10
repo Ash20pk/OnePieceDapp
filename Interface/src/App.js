@@ -11,12 +11,8 @@ import sanjiAudio from "./sounds/sanji.mp3";
 import zoroAudio from "./sounds/zoro.mp3";
 import usoppAudio from "./sounds/usopp.mp3";
 import brookAudio from "./sounds/brook.mp3";
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import SubgraphWorker from "./worker/subgraphWorker.js";
 
-const client = new ApolloClient({
-  uri: process.env.REACT_APP_SUBGRAPH_URL,
-  cache: new InMemoryCache(),
-});
 
 function App() {
   const { web3, nftcontract, account, connectWallet, disconnectWallet, connected } = useWeb3();
@@ -26,7 +22,6 @@ function App() {
   const [started, setStarted] = useState(false);
   const [Minted, setMinted] = useState(false);
   const [tokenURI, setTokenURI] = useState('');
-  const [checkMintedSuccess, setCheckMintSuccess] = useState(0);
   const [character, setCharacter] = useState(``);
 
 
@@ -68,57 +63,6 @@ function App() {
     }
     setLoading(false);
   };
-
-  const checkMintedEvent = async (minter) => {
-    const query = gql`
-      query GetNftMintedEvent($minter: Bytes!) {
-        nftMinteds(where: { minter: $minter }) {
-          id
-          characterId
-          minter
-          blockNumber
-          blockTimestamp
-          transactionHash
-        }
-      }
-    `;
-  
-    const variables = {
-      minter: minter,
-    };
-  
-    let timedOut = false;
-  
-    // Timeout after 30 seconds
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      console.log('Timeout occurred after 30 seconds.');
-    }, 30000);
-  
-    const checkEvent = async () => {
-      try {
-        const result = await client.query({ query, variables });
-        const nftMinted = result.data.nftMinteds[0];
-        if (nftMinted) {
-          console.log('NFT minted successfully');
-          clearTimeout(timeout); // Clear the timeout if the minted event is found
-          checkMinted();
-        } else {
-          if (!timedOut) {
-            setTimeout(checkEvent, 3000); // Check again after 3 seconds
-          }
-        }
-      } catch (error) {
-        console.error("Error occurred while querying the subgraph:", error);
-        setLoading(false);
-        // Handle the error case, e.g., show an error message to the user
-      }
-    };
-  
-    // Start after a 3-second delay
-    setTimeout(checkEvent, 3000);
-  };
-  
 
   const fetchURI = async () => {
     setLoading(true);
@@ -195,12 +139,32 @@ function App() {
         setLoading(true); // Set loading to true before sending the transaction
     })
     .on("receipt", function (receipt) {
+
         console.log("Transaction successful:", receipt.transactionHash);
-        checkMintedEvent(account);
-    })
+        const worker = new SubgraphWorker();
+        worker.postMessage({ type: 'CHECK_MINTED', minter: account });
+
+        worker.onmessage = (event) => {
+          const { type, data, error } = event.data;
+
+          if (type === 'MINTED') {
+            console.log('NFT minted successfully');
+            checkMinted();
+
+          } else if (type === 'NOT_MINTED') {
+            setTimeout(() => {
+              worker.postMessage({ type: 'CHECK_MINTED', minter: account });
+            }, 3000); // Check again after 3 seconds
+
+          } else if (type === 'ERROR') {
+            console.error("Error occurred while querying the subgraph:", error);
+            setLoading(false);
+          }
+        };
+      })
     .on("error", (error) => {
-        console.error("Error requesting NFT:", error);
-        setLoading(false); // Set loading back to false if there's an error during the transaction
+      console.error("Error requesting NFT:", error);
+      setLoading(false); // Set loading back to false if there's an error during the transaction
     });
 
     setShowPersonalityForm(false);
