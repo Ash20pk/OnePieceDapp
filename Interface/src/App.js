@@ -208,7 +208,7 @@ function App() {
 
     setShowPersonalityForm(false);
   } catch(e) {
-    Alert("Errrrrrr, please try again");
+    alert("Errrrrrr, please try again");
   }
   };
 
