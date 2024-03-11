@@ -98,7 +98,6 @@ function App() {
     const checkEvent = async () => {
       try {
         const result = await client.query({ query, variables });
-        console.log(result);
         const nftMinted = result.data.nftMinteds[0];
         console.log(nftMinted);
         if (nftMinted) {
@@ -119,8 +118,8 @@ function App() {
       }
     };
   
-    // Start after a 8-second delay
-    setTimeout(checkEvent, 8000);
+    // Start after a 6-second delay
+    setTimeout(checkEvent, 6000);
   };
   
 
@@ -190,6 +189,7 @@ function App() {
 
 
   const handleFormSubmit = async () => {
+    try{
     await nftcontract.methods
     .requestNFT(answers)
     .send({from: account, gasLimit: 200000})
@@ -207,6 +207,9 @@ function App() {
     });
 
     setShowPersonalityForm(false);
+  } catch(e) {
+    Alert("Errrrrrr, please try again");
+  }
   };
 
 
