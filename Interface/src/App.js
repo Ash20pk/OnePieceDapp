@@ -104,7 +104,9 @@ function App() {
         if (nftMinted) {
           console.log('NFT minted successfully');
           clearTimeout(timeout); // Clear the timeout if the minted event is found
-          checkMinted();
+          setMinted(true);
+          setShowPersonalityForm(false);
+          fetchURI();
         } else {
           if (!timedOut) {
             setTimeout(checkEvent, 3000); // Check again after 3 seconds
