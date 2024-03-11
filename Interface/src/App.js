@@ -69,6 +69,7 @@ function App() {
   };
 
   const checkMintedEvent = async (minter) => {
+    console.log("Account:",minter);
     const query = gql`
       query GetNftMintedEvent($minter: Bytes!) {
         nftMinteds(where: { minter: $minter }) {
@@ -98,6 +99,7 @@ function App() {
       try {
         const result = await client.query({ query, variables });
         const nftMinted = result.data.nftMinteds[0];
+        console.log(nftMinted);
         if (nftMinted) {
           console.log('NFT minted successfully');
           clearTimeout(timeout); // Clear the timeout if the minted event is found
@@ -115,7 +117,7 @@ function App() {
     };
   
     // Start after a 4-second delay
-    setTimeout(checkEvent, 4000);
+    setTimeout(checkEvent, 2000);
   };
   
 
@@ -185,17 +187,16 @@ function App() {
 
 
   const handleFormSubmit = async () => {
-
     await nftcontract.methods
     .requestNFT(answers)
-    .send({from: account})
+    .send({from: account, gasLimit: 200000})
     .on("transactionHash", function (hash) {
         console.log("Transaction sent. Transaction hash:", hash);
         setLoading(true); // Set loading to true before sending the transaction
     })
     .on("receipt", function (receipt) {
         console.log("Transaction successful:", receipt.transactionHash);
-        checkMintedEvent(account);
+        checkMintedEvent(account.toString());
     })
     .on("error", (error) => {
         console.error("Error requesting NFT:", error);

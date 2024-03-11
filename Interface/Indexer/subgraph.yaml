@@ -8,9 +8,9 @@ dataSources:
     name: OnePieceMint
     network: arbitrum-sepolia
     source:
-      address: "0xd3A300915A8a3595Ecab98284d85F5AEb14c6f62"
+      address: "0xde5Eff40C92dd8C107946a65FB0A58eAb0c888F4"
       abi: OnePieceMint
-      startBlock: 21952444
+      startBlock: 21975247
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
