@@ -117,8 +117,8 @@ function App() {
       }
     };
   
-    // Start after a 2-second delay
-    setTimeout(checkEvent, 2000);
+    // Start after a 8-second delay
+    setTimeout(checkEvent, 8000);
   };
   
 
