@@ -84,9 +84,9 @@ contract OnePieceMint is VRFConsumerBaseV2, ERC721, Ownable, ERC721URIStorage {
         uint256 traitBasedCharacterId = userCharacter[nftOwner];
 
         uint256 randomValue = randomWords[0];
-        uint256 randomCharacterId = (randomValue % 5) + 1;
+        uint256 randomCharacterId = (randomValue % 5); // random number between 0 and 4
 
-        uint256 finalCharacterId = (traitBasedCharacterId + randomCharacterId) % 5 + 1;
+        uint256 finalCharacterId = (traitBasedCharacterId + randomCharacterId) % 5; //final ID will be between 0 and 4
         mintNFT(nftOwner, finalCharacterId);
     }
 

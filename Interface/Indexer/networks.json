@@ -1,0 +1,8 @@
+{
+  "arbitrum-sepolia": {
+    "OnePieceMint": {
+      "address": "0x2AcaCd6DebFeBB680311a8ef603b8f30D0F32196",
+      "startBlock": 22043215
+    }
+  }
+}
