@@ -98,6 +98,7 @@ function App() {
     const checkEvent = async () => {
       try {
         const result = await client.query({ query, variables });
+        console.log(result);
         const nftMinted = result.data.nftMinteds[0];
         console.log(nftMinted);
         if (nftMinted) {
@@ -116,7 +117,7 @@ function App() {
       }
     };
   
-    // Start after a 4-second delay
+    // Start after a 2-second delay
     setTimeout(checkEvent, 2000);
   };
   
