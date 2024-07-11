@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.19;
 
-import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract OnePieceMint is VRFConsumerBaseV2, ERC721, Ownable, ERC721URIStorage {
+contract OnePieceMint is VRFConsumerBaseV2Plus, ERC721, ERC721URIStorage {
     uint256 private s_tokenCounter;
 
     string[] internal characterTokenURIs = [
@@ -18,17 +17,17 @@ contract OnePieceMint is VRFConsumerBaseV2, ERC721, Ownable, ERC721URIStorage {
         "https://scarlet-live-iguana-759.mypinata.cloud/ipfs/QmarkkgDuBUcnqksatPzU8uNS4o6LTbEtuK43P7Jyth9NH"
     ];
 
-    VRFCoordinatorV2Interface private i_vrfCoordinator;
-    uint64 private i_subscriptionId; // get subscription ID from vrf.chain.link
+    uint256 public s_subscriptionId;
     bytes32 private i_keyHash;
     uint32 private i_callbackGasLimit;
+    uint16 private i_requestConfirmations = 3;
+    uint32 private i_numWords = 1;
 
     mapping(uint256 => address) private requestIdToSender;
     mapping(address => uint256) private userCharacter;
-    mapping(address => bool) public hasMinted; // a mapping to track if an address has already minted an NFT
-    mapping(address => uint256) public s_addressToCharacter; // a mapping to map address to the character they got
+    mapping(address => bool) public hasMinted;
+    mapping(address => uint256) public s_addressToCharacter;
     mapping(address => uint256) public userTokenID;
-
 
     event NftRequested(uint256 requestId, address requester);
     event CharacterTraitDetermined(uint256 characterId);
@@ -36,30 +35,27 @@ contract OnePieceMint is VRFConsumerBaseV2, ERC721, Ownable, ERC721URIStorage {
 
     constructor(
         address vrfCoordinatorV2Address,
-        uint64 subId,
+        uint256 subscriptionId,
         bytes32 keyHash,
         uint32 callbackGasLimit
-    ) VRFConsumerBaseV2(vrfCoordinatorV2Address) ERC721("OnePiece NFT", "OPN"){
-
-        i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2Address);
-        i_subscriptionId = subId;
+    ) VRFConsumerBaseV2Plus(vrfCoordinatorV2Address) ERC721("OnePiece NFT", "OPN") {
+        s_subscriptionId = subscriptionId;
         i_keyHash = keyHash;
         i_callbackGasLimit = callbackGasLimit;
     }
 
-    //Function to mint NFT according to the character id
     function mintNFT(address recipient, uint256 characterId) internal {
-        require(!hasMinted[recipient], "You have already minted your house NFT"); // Ensure the address has not minted before
+        require(!hasMinted[recipient], "You have already minted your house NFT");
 
         uint256 tokenId = s_tokenCounter;
         _safeMint(recipient, tokenId);
         _setTokenURI(tokenId, characterTokenURIs[characterId]);
 
-        s_addressToCharacter[recipient] = characterId; //map character to address
+        s_addressToCharacter[recipient] = characterId;
         userTokenID[recipient] = tokenId;
 
         s_tokenCounter += 1;
-        hasMinted[recipient] = true; // Mark the address as having minted an NFT
+        hasMinted[recipient] = true;
 
         emit NftMinted(characterId, recipient);
     }
@@ -67,26 +63,32 @@ contract OnePieceMint is VRFConsumerBaseV2, ERC721, Ownable, ERC721URIStorage {
     function requestNFT(uint256[5] memory answers) public {
         userCharacter[msg.sender] = determineCharacter(answers);
 
-        uint256 requestId = i_vrfCoordinator.requestRandomWords(
-            i_keyHash, 
-            i_subscriptionId,
-            3,
-            i_callbackGasLimit,
-            1
+        uint256 requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: i_keyHash,
+                subId: s_subscriptionId,
+                requestConfirmations: i_requestConfirmations,
+                callbackGasLimit: i_callbackGasLimit,
+                numWords: i_numWords,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    VRFV2PlusClient.ExtraArgsV1({
+                        nativePayment: false
+                    })
+                )
+            })
         );
         requestIdToSender[requestId] = msg.sender;
         emit NftRequested(requestId, msg.sender);
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
-        
+    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
         address nftOwner = requestIdToSender[requestId];
         uint256 traitBasedCharacterId = userCharacter[nftOwner];
 
         uint256 randomValue = randomWords[0];
-        uint256 randomCharacterId = (randomValue % 5); // random number between 0 and 4
+        uint256 randomCharacterId = (randomValue % 5);
 
-        uint256 finalCharacterId = (traitBasedCharacterId + randomCharacterId) % 5; //final ID will be between 0 and 4
+        uint256 finalCharacterId = (traitBasedCharacterId + randomCharacterId) % 5;
         mintNFT(nftOwner, finalCharacterId);
     }
 
@@ -100,14 +102,11 @@ contract OnePieceMint is VRFConsumerBaseV2, ERC721, Ownable, ERC721URIStorage {
         return characterId;
     }
 
-    //override the transfer functionality of ERC721 to make it soulbound
     function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual override {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-
         require(from == address(0) || to == address(0), "Err! This is not allowed");
     }
 
-    // The following functions are overrides required by Solidity.
     function tokenURI(uint256 tokenId)
         public
         view

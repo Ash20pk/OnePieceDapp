@@ -1,14 +1,14 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "VRFCoordinatorV2Interface",
-  "sourceName": "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol",
+  "contractName": "IVRFSubscriptionV2Plus",
+  "sourceName": "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFSubscriptionV2Plus.sol",
   "abi": [
     {
       "inputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         }
       ],
       "name": "acceptSubscriptionOwnerTransfer",
@@ -19,9 +19,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         },
         {
           "internalType": "address",
@@ -37,9 +37,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         },
         {
           "internalType": "address",
@@ -57,32 +57,46 @@
       "name": "createSubscription",
       "outputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "getRequestConfig",
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "subId",
+          "type": "uint256"
+        }
+      ],
+      "name": "fundSubscriptionWithNative",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "startIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxCount",
+          "type": "uint256"
+        }
+      ],
+      "name": "getActiveSubscriptionIds",
       "outputs": [
         {
-          "internalType": "uint16",
+          "internalType": "uint256[]",
           "name": "",
-          "type": "uint16"
-        },
-        {
-          "internalType": "uint32",
-          "name": "",
-          "type": "uint32"
-        },
-        {
-          "internalType": "bytes32[]",
-          "name": "",
-          "type": "bytes32[]"
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
@@ -91,9 +105,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         }
       ],
       "name": "getSubscription",
@@ -101,6 +115,11 @@
         {
           "internalType": "uint96",
           "name": "balance",
+          "type": "uint96"
+        },
+        {
+          "internalType": "uint96",
+          "name": "nativeBalance",
           "type": "uint96"
         },
         {
@@ -125,9 +144,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         }
       ],
       "name": "pendingRequestExists",
@@ -144,9 +163,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         },
         {
           "internalType": "address",
@@ -162,48 +181,9 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "keyHash",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint64",
-          "name": "subId",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint16",
-          "name": "minimumRequestConfirmations",
-          "type": "uint16"
-        },
-        {
-          "internalType": "uint32",
-          "name": "callbackGasLimit",
-          "type": "uint32"
-        },
-        {
-          "internalType": "uint32",
-          "name": "numWords",
-          "type": "uint32"
-        }
-      ],
-      "name": "requestRandomWords",
-      "outputs": [
-        {
           "internalType": "uint256",
-          "name": "requestId",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint64",
           "name": "subId",
-          "type": "uint64"
+          "type": "uint256"
         },
         {
           "internalType": "address",
