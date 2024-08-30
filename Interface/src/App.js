@@ -189,10 +189,11 @@ function App() {
 
 
   const handleFormSubmit = async () => {
+    const estimatedGas = await nftcontract.methods.requestNFT(answers).estimateGas({from: account});
     try{
     await nftcontract.methods
     .requestNFT(answers)
-    .send({from: account, gasLimit: 200000})
+    .send({from: account, gasLimit: estimatedGas})
     .on("transactionHash", function (hash) {
         console.log("Transaction sent. Transaction hash:", hash);
         setLoading(true); // Set loading to true before sending the transaction
@@ -209,6 +210,7 @@ function App() {
     setShowPersonalityForm(false);
   } catch(e) {
     alert("Errrrrrr, please try again");
+    console.log(e);
   }
   };
 
