@@ -3,9 +3,11 @@ import {
   ApprovalForAll as ApprovalForAllEvent,
   BatchMetadataUpdate as BatchMetadataUpdateEvent,
   CharacterTraitDetermined as CharacterTraitDeterminedEvent,
+  CoordinatorSet as CoordinatorSetEvent,
   MetadataUpdate as MetadataUpdateEvent,
   NftMinted as NftMintedEvent,
   NftRequested as NftRequestedEvent,
+  OwnershipTransferRequested as OwnershipTransferRequestedEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
   Transfer as TransferEvent
 } from "../generated/OnePieceMint/OnePieceMint"
@@ -14,9 +16,11 @@ import {
   ApprovalForAll,
   BatchMetadataUpdate,
   CharacterTraitDetermined,
+  CoordinatorSet,
   MetadataUpdate,
   NftMinted,
   NftRequested,
+  OwnershipTransferRequested,
   OwnershipTransferred,
   Transfer
 } from "../generated/schema"
@@ -82,6 +86,19 @@ export function handleCharacterTraitDetermined(
   entity.save()
 }
 
+export function handleCoordinatorSet(event: CoordinatorSetEvent): void {
+  let entity = new CoordinatorSet(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.vrfCoordinator = event.params.vrfCoordinator
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
+}
+
 export function handleMetadataUpdate(event: MetadataUpdateEvent): void {
   let entity = new MetadataUpdate(
     event.transaction.hash.concatI32(event.logIndex.toI32())
@@ -123,14 +140,30 @@ export function handleNftRequested(event: NftRequestedEvent): void {
   entity.save()
 }
 
+export function handleOwnershipTransferRequested(
+  event: OwnershipTransferRequestedEvent
+): void {
+  let entity = new OwnershipTransferRequested(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.from = event.params.from
+  entity.to = event.params.to
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
+}
+
 export function handleOwnershipTransferred(
   event: OwnershipTransferredEvent
 ): void {
   let entity = new OwnershipTransferred(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
+  entity.from = event.params.from
+  entity.to = event.params.to
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

@@ -1,13 +1,13 @@
 {
-  "name": "one-piece-game",
+  "name": "one-piece",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ one-piece-game",
-    "create-local": "graph create --node http://localhost:8020/ one-piece-game",
-    "remove-local": "graph remove --node http://localhost:8020/ one-piece-game",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 one-piece-game",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ one-piece",
+    "create-local": "graph create --node http://localhost:8020/ one-piece",
+    "remove-local": "graph remove --node http://localhost:8020/ one-piece",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 one-piece",
     "test": "graph test"
   },
   "dependencies": {

@@ -5,9 +5,11 @@ import {
   ApprovalForAll,
   BatchMetadataUpdate,
   CharacterTraitDetermined,
+  CoordinatorSet,
   MetadataUpdate,
   NftMinted,
   NftRequested,
+  OwnershipTransferRequested,
   OwnershipTransferred,
   Transfer
 } from "../generated/OnePieceMint/OnePieceMint"
@@ -102,6 +104,23 @@ export function createCharacterTraitDeterminedEvent(
   return characterTraitDeterminedEvent
 }
 
+export function createCoordinatorSetEvent(
+  vrfCoordinator: Address
+): CoordinatorSet {
+  let coordinatorSetEvent = changetype<CoordinatorSet>(newMockEvent())
+
+  coordinatorSetEvent.parameters = new Array()
+
+  coordinatorSetEvent.parameters.push(
+    new ethereum.EventParam(
+      "vrfCoordinator",
+      ethereum.Value.fromAddress(vrfCoordinator)
+    )
+  )
+
+  return coordinatorSetEvent
+}
+
 export function createMetadataUpdateEvent(_tokenId: BigInt): MetadataUpdate {
   let metadataUpdateEvent = changetype<MetadataUpdate>(newMockEvent())
 
@@ -159,9 +178,29 @@ export function createNftRequestedEvent(
   return nftRequestedEvent
 }
 
+export function createOwnershipTransferRequestedEvent(
+  from: Address,
+  to: Address
+): OwnershipTransferRequested {
+  let ownershipTransferRequestedEvent = changetype<OwnershipTransferRequested>(
+    newMockEvent()
+  )
+
+  ownershipTransferRequestedEvent.parameters = new Array()
+
+  ownershipTransferRequestedEvent.parameters.push(
+    new ethereum.EventParam("from", ethereum.Value.fromAddress(from))
+  )
+  ownershipTransferRequestedEvent.parameters.push(
+    new ethereum.EventParam("to", ethereum.Value.fromAddress(to))
+  )
+
+  return ownershipTransferRequestedEvent
+}
+
 export function createOwnershipTransferredEvent(
-  previousOwner: Address,
-  newOwner: Address
+  from: Address,
+  to: Address
 ): OwnershipTransferred {
   let ownershipTransferredEvent = changetype<OwnershipTransferred>(
     newMockEvent()
@@ -170,13 +209,10 @@ export function createOwnershipTransferredEvent(
   ownershipTransferredEvent.parameters = new Array()
 
   ownershipTransferredEvent.parameters.push(
-    new ethereum.EventParam(
-      "previousOwner",
-      ethereum.Value.fromAddress(previousOwner)
-    )
+    new ethereum.EventParam("from", ethereum.Value.fromAddress(from))
   )
   ownershipTransferredEvent.parameters.push(
-    new ethereum.EventParam("newOwner", ethereum.Value.fromAddress(newOwner))
+    new ethereum.EventParam("to", ethereum.Value.fromAddress(to))
   )
 
   return ownershipTransferredEvent

@@ -35,6 +35,14 @@ type CharacterTraitDetermined @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+type CoordinatorSet @entity(immutable: true) {
+  id: Bytes!
+  vrfCoordinator: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type MetadataUpdate @entity(immutable: true) {
   id: Bytes!
   _tokenId: BigInt! # uint256
@@ -61,10 +69,19 @@ type NftRequested @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+type OwnershipTransferRequested @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type OwnershipTransferred @entity(immutable: true) {
   id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
+  from: Bytes! # address
+  to: Bytes! # address
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

@@ -11,7 +11,7 @@ async function main() {
   const vrfCoordinatorV2Address = process.env.VRF_ADDRESS; // address of the VRFCoordinatorV2 contract
   const subId = process.env.SUB_ID; // subscription ID for Chainlink VRF
   const keyHash = process.env.KEY_HASH; // key hash for Chainlink VRF
-  const gasLimit = 2000000; 
+  const gasLimit = 2500000; 
 
   const argumentsArray = [vrfCoordinatorV2Address, subId, keyHash, gasLimit ]
   const content = "module.exports = " + JSON.stringify(argumentsArray, null, 2) + ";";

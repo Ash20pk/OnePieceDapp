@@ -6,7 +6,11 @@
         "name": "vrfCoordinatorV2Address",
         "type": "address"
       },
-      { "internalType": "uint64", "name": "subId", "type": "uint64" },
+      {
+        "internalType": "uint256",
+        "name": "subscriptionId",
+        "type": "uint256"
+      },
       { "internalType": "bytes32", "name": "keyHash", "type": "bytes32" },
       { "internalType": "uint32", "name": "callbackGasLimit", "type": "uint32" }
     ],
@@ -21,6 +25,16 @@
     "name": "OnlyCoordinatorCanFulfill",
     "type": "error"
   },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "have", "type": "address" },
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "coordinator", "type": "address" }
+    ],
+    "name": "OnlyOwnerOrCoordinator",
+    "type": "error"
+  },
+  { "inputs": [], "name": "ZeroAddress", "type": "error" },
   {
     "anonymous": false,
     "inputs": [
@@ -108,6 +122,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "vrfCoordinator",
+        "type": "address"
+      }
+    ],
+    "name": "CoordinatorSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
@@ -160,13 +187,32 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "previousOwner",
+        "name": "from",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newOwner",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferRequested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
         "type": "address"
       }
     ],
@@ -197,6 +243,13 @@
     ],
     "name": "Transfer",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "acceptOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -281,13 +334,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       { "internalType": "uint256[5]", "name": "answers", "type": "uint256[5]" }
     ],
@@ -300,6 +346,26 @@
     "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "s_addressToCharacter",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_subscriptionId",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s_vrfCoordinator",
+    "outputs": [
+      {
+        "internalType": "contract IVRFCoordinatorV2Plus",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -332,6 +398,19 @@
       { "internalType": "bool", "name": "approved", "type": "bool" }
     ],
     "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_vrfCoordinator",
+        "type": "address"
+      }
+    ],
+    "name": "setCoordinator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -373,9 +452,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "to", "type": "address" }],
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
