@@ -4,7 +4,7 @@ This is a fun dApp that allows users to mint NFTs representing their One Piece p
 ## Clone the repository:
 
 ```
-git clone https://github.com/your-username/one-piece-nft-dapp.git
+git clone https://github.com/ash20pk/one-piece-nft-dapp.git
 ```
 
 ## Install the dependencies:
