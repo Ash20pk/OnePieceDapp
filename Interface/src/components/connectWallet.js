@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
-import Web3 from 'web3';
+import { ethers } from 'ethers';
 import nftABI from '../contract/OnePieceMint.json'
 
 // Create a context for Web3
@@ -9,42 +9,57 @@ const Web3Context = createContext();
 export const useWeb3 = () => useContext(Web3Context);
 
 export function ConnectWallet({ children }) {
-  const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [connected, setConnected] = useState(false);
   const [nftcontract, setNftcontract] = useState(null);
 
-  useEffect(() => {
-    if (window.ethereum) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
+  const switchNetwork = async () => {
+    const hexChainId = '0x66eee';
+    try {
+
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: hexChainId }],
+      });
+    } catch (error) {
+      if ((error)?.code === 4902) { // 4902 - chain not added
+        window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: '0x66eee',
+            rpcUrls: ['https://sepolia-rollup.arbitrum.io/rpc'],
+            chainName: 'Arbitrum Sepolia Testnet',
+            nativeCurrency: {
+              name: "ETH",
+              symbol: "ETH",
+              decimals: 18
+            },
+            blockExplorerUrls: 'https://sepolia.arbiscan.io/'
+          }]
+        });
+      }
     }
-  }, []);
+  }
 
   const nftContractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 
 
   const connectWallet = async () => {
-      try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const accounts = await web3.eth.getAccounts();
-        const account = accounts[0];
-        const currentChainId = await window.ethereum.request({
-          method: 'eth_chainId',
-        });
-        if (currentChainId !== '0x66eee') { // '0x66eee' is the chain ID for Arbitrum Sepolia Testnet
-          alert("Connect to Arbitrum Sepolia Testnet");
-          return;
-        }
-        const instance = new web3.eth.Contract(nftABI.abi, nftContractAddress);
-        setNftcontract(instance);
-        console.log(account);
-        setAccount(account);
-        setConnected(true);
+    await switchNetwork();
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const signer = await provider.getSigner();
+      const account = await window.ethereum.request({ method: 'eth_accounts' });
+      const instance = new ethers.Contract(nftContractAddress, nftABI.abi, signer);
+      setNftcontract(instance);
+      console.log(account[0]);
+      setAccount(account[0]);
+      setConnected(true);
       } catch (error) {
-        console.error(error);
+          return;
       }
-    }
+  }
 
   const disconnectWallet = () => {
     setAccount(null);
@@ -53,7 +68,7 @@ export function ConnectWallet({ children }) {
   };
 
   return (
-    <Web3Context.Provider value={{ web3, account, disconnectWallet, connectWallet, connected, nftcontract }}>
+    <Web3Context.Provider value={{ account, disconnectWallet, connectWallet, connected, nftcontract, switchNetwork }}>
       <div>
         {children}
       </div>

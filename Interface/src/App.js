@@ -19,7 +19,7 @@ const client = new ApolloClient({
 });
 
 function App() {
-  const { web3, nftcontract, account, connectWallet, disconnectWallet, connected } = useWeb3();
+  const { nftcontract, account, connectWallet, disconnectWallet, connected, switchNetwork } = useWeb3();
   const [showPersonalityForm, setShowPersonalityForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState([]);
@@ -55,7 +55,7 @@ function App() {
 
   const checkMinted = async () => {
     setLoading(true);
-    const bool = await nftcontract.methods.hasMinted(account).call();
+    const bool = await nftcontract.hasMinted(account);
     if(bool) {
       setMinted(true);
       fetchURI();
@@ -125,8 +125,8 @@ function App() {
 
   const fetchURI = async () => {
     setLoading(true);
-    const tokenID = await nftcontract.methods.userTokenID(account).call();
-    const metadataIpfsLink = await nftcontract.methods.tokenURI(tokenID).call();
+    const tokenID = await nftcontract.userTokenID(account);
+    const metadataIpfsLink = await nftcontract.tokenURI(tokenID);
     const response = await fetch(metadataIpfsLink);
     const metadata = await response.json();
     getCharacter(metadata);
@@ -171,6 +171,7 @@ function App() {
     setStarted(false);
     setLoading(false);
     setTokenURI(false);
+    setCharacter('');
   }
 
   const handleConnect = () => {
@@ -189,31 +190,24 @@ function App() {
 
 
   const handleFormSubmit = async () => {
-    const estimatedGas = await nftcontract.methods.requestNFT(answers).estimateGas({from: account});
-    try{
-    await nftcontract.methods
-    .requestNFT(answers)
-    .send({from: account, gasLimit: estimatedGas})
-    .on("transactionHash", function (hash) {
-        console.log("Transaction sent. Transaction hash:", hash);
-        setLoading(true); // Set loading to true before sending the transaction
-    })
-    .on("receipt", function (receipt) {
+    try {
+      const tx = await nftcontract.requestNFT(answers);
+      setLoading(true); // Set loading to true before sending the transaction
+
+      try {
+        const receipt = await tx.wait(2);
         console.log("Transaction successful:", receipt.transactionHash);
         checkMintedEvent(account.toString());
-    })
-    .on("error", (error) => {
+      } catch (error) {
         console.error("Error requesting NFT:", error);
         setLoading(false); // Set loading back to false if there's an error during the transaction
-    });
-
-    setShowPersonalityForm(false);
-  } catch(e) {
-    alert("Errrrrrr, please try again");
-    console.log(e);
-  }
+      }
+      setShowPersonalityForm(false);
+    } catch (e) {
+      alert("Errrrrrr, please try again");
+      console.log(e);
+    }
   };
-
 
   return (
     <div className="App">
